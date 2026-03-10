@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Umunara</title>
+    <link rel="shortcut icon" href="images/logo1.png" type="image/x-icon">
+    <link rel="stylesheet" href="form_style.css">
+</head>
+<body>
+    <div class="container">
+        <form id="form">
+            <img src="images/logo1.png" alt="Umunara" class="logo">
+            <input type="text" id="name" placeholder="Full-name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="tel" id="phone" placeholder="Phone number" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="password" id="confirm" placeholder="Confirm password">
+            <button type="submit" id="submit">Register</button>
+        </form>
+        <p>Already have account? <a href="login.html">Login</a></p>
+        <p id="info"></p>
+    </div>
+
+    <script>
+        const button = document.getElementById('submit');
+        const form = document.getElementById('form');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            button.disabled = true;
+            button.innerHTML = 'Registering ...';
+            button.style.background = '#ccc'
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const confirm = document.getElementById("confirm").value.trim();
+            const info = document.getElementById('info');
+
+            try {
+                const response = await fetch("http://localhost:5000/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name,email,phone,password,confirm})
+                });
+
+                const data = await response.json();
+
+                if(data.error) {
+                    info.innerHTML = data.error;
+                    info.style.color = 'red'
+                }
+                else if(data.message) {
+                    info.innerHTML = data.message;
+                    info.style.color = 'green';
+                    localStorage.setItem("token", data.token );
+                    form.reset();
+                    setTimeout(() => window.location.href = "index.html", 2000)
+                }
+            }
+            catch(error) {
+                console.error(error);
+                info.innerHTML = "something went wrong";
+                info.style.color = 'red';
+            }
+            finally {
+                button.disabled = false;
+                button.innerHTML = 'Register';
+                button.style.background = "";  
+            }
+        });
+    </script>
+</body>
+</html>
